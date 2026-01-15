@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Date Night Decider</title>
+  <style>
+    :root{
+      --bg1:#fff1f2;      /* rose-50-ish */
+      --bg2:#ffffff;
+      --bg3:#fafafa;
+      --card:#ffffffcc;
+      --border:#e5e7eb;
+      --text:#0f172a;
+      --muted:#64748b;
+      --shadow: 0 10px 30px rgba(15,23,42,.06);
+      --shadow2: 0 8px 18px rgba(15,23,42,.08);
+      --radius: 22px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background: linear-gradient(180deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{
+      width:min(820px, 100%);
+      padding:24px 16px 40px;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:rgba(255,255,255,.7);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 14px rgba(15,23,42,.05);
+      font-weight:600;
+      font-size:14px;
+    }
+    .btn-mini{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:#fff;
+      box-shadow: 0 4px 14px rgba(15,23,42,.05);
+      cursor:pointer;
+      font-size:13px;
+      color: #334155;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+    .btn-mini:hover{ background:#f8fafc; box-shadow: var(--shadow2); transform: translateY(-1px); }
+    .btn-mini:active{ transform: translateY(0); }
+
+    .hero{
+      border:1px solid var(--border);
+      border-radius: calc(var(--radius) + 8px);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding:22px;
+    }
+    .hero h1{
+      margin:0;
+      font-size:26px;
+      letter-spacing:-.02em;
+    }
+    .hero p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .progress{
+      margin-top:16px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:center;
+    }
+    .dots{ display:flex; gap:6px; }
+    .dot{
+      height:6px; width:28px;
+      border-radius:999px;
+      background:#e5e7eb;
+      transition: background .18s ease;
+    }
+    .dot.on{ background: rgba(15,23,42,.75); }
+    .stepText{ font-size:12px; color:#6b7280; }
+
+    .panel{
+      margin-top:14px;
+      border:1px solid var(--border);
+      border-radius: calc(var(--radius) + 8px);
+      background:#fff;
+      box-shadow: var(--shadow);
+      padding:16px;
+      overflow:hidden;
+    }
+
+    .fade{
+      animation: fadeUp .18s ease both;
+    }
+    @keyframes fadeUp{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    .grid{
+      display:grid;
+      gap:12px;
+    }
+    .choice{
+      width:100%;
+      text-align:left;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background:#fff;
+      padding:14px;
+      cursor:pointer;
+      box-shadow: 0 2px 10px rgba(15,23,42,.04);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .choice:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadow2);
+      border-color:#d1d5db;
+    }
+    .choice:active{ transform: translateY(0); }
+    .icon{
+      height:44px; width:44px;
+      border-radius: 18px;
+      border:1px solid var(--border);
+      background:#f8fafc;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+    }
+    .choice .label{
+      font-weight:700;
+      font-size:15px;
+    }
+    .choice .hint{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+
+    .resultCard{
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #fff, #f8fafc);
+      padding:16px;
+    }
+    .resultTitle{
+      font-size:20px;
+      font-weight:800;
+      margin:0;
+      letter-spacing:-.02em;
+    }
+    .pairing{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+    .steps{
+      margin-top:12px;
+      display:grid;
+      gap:10px;
+    }
+    .step{
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background:#fff;
+      padding:14px;
+    }
+    .step .k{
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#6b7280;
+    }
+    .step .v{
+      margin-top:6px;
+      font-size:15px;
+      font-weight:750;
+    }
+
+    .tip{
+      margin-top:12px;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background:#f8fafc;
+      padding:12px 14px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .footer{
+      margin-top:18px;
+      text-align:center;
+      font-size:12px;
+      color:#6b7280;
+    }
+
+    @media (min-width: 640px){
+      .hero{ padding:26px; }
+      .panel{ padding:18px; }
+      .wrap{ padding:28px 18px 46px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="pill">💘 Date Night Decider</div>
+      <button class="btn-mini" id="resetBtn" title="Reset everything">🔄 Reset</button>
+    </div>
+
+    <div class="hero">
+      <h1 id="qTitle">Let’s plan a date night 💘</h1>
+      <p id="qSubtitle">Click to start — I’ll help you build a vibe-based plan in a few taps.</p>
+
+      <div class="progress" aria-label="progress">
+        <div class="dots" id="dots"></div>
+        <div class="stepText" id="stepText">Ready when you are</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div id="panelInner" class="fade"></div>
+    </div>
+
+    <div class="footer">Made for quick choices • big vibes</div>
+  </div>
+
+  <script>
+    // ----- Data: question flow (3 choices each) -----
+    const QUESTIONS = {
+      start: {
+        id: "start",
+        title: "Let’s plan a date night 💘",
+        subtitle: "Click to start — I’ll help you build a vibe-based plan in a few taps.",
+        choices: [
+          { label: "Start", value: "start", next: "where", icon: "✨" }
+        ]
+      },
+
+      where: {
+        id: "where",
+        title: "What’s the move?",
+        subtitle: "Pick the overall setting.",
+        choices: [
+          { label: "Stay in", value: "in", next: "budget", icon: "🏠" },
+          { label: "Go out", value: "out", next: "budget", icon: "📍" },
+          { label: "Surprise me", value: "either", next: "budget", icon: "🎲" }
+        ]
+      },
+
+      budget: {
+        id: "budget",
+        title: "Budget check 💸",
+        subtitle: "How are we spending tonight?",
+        choices: [
+          { label: "Ball out", value: "ballout", next: "mood", icon: "💎" },
+          { label: "Stay economical", value: "economical", next: "mood", icon: "🪙" },
+          { label: "Somewhere in-between", value: "mid", next: "mood", icon: "⚖️" }
+        ]
+      },
+
+      mood: {
+        id: "mood",
+        title: "Pick your vibe",
+        subtitle: "What kind of energy do you want?",
+        choices: [
+          { label: "Cozy", value: "cozy", next: "tone", icon: "🕯️" },
+          { label: "Exciting", value: "exciting", next: "tone", icon: "⚡" },
+          { label: "Wholesome", value: "wholesome", next: "tone", icon: "🌿" }
+        ]
+      },
+
+      tone: {
+        id: "tone",
+        title: "And the tone?",
+        subtitle: "How do you want it to feel?",
+        choices: [
+          { label: "Intimate", value: "intimate", next: "state", icon: "💞" },
+          { label: "Goofy", value: "goofy", next: "state", icon: "🤪" },
+          { label: "Adventurous", value: "adventurous", next: "state", icon: "🧭" }
+        ]
+      },
+
+      state: {
+        id: "state",
+        title: "How are you feeling right now?",
+        subtitle: "This helps pick a pace.",
+        choices: [
+          { label: "Stressed", value: "stressed", next: "food", icon: "🫠" },
+          { label: "Relaxed", value: "relaxed", next: "food", icon: "😌" },
+          { label: "Restless", value: "restless", next: "food", icon: "🌀" }
+        ]
+      },
+
+      food: {
+        id: "food",
+        title: "Food situation?",
+        subtitle: "We’ll pair the plan with snacks or a meal.",
+        choices: [
+          { label: "Appetizers + dessert", value: "appsDessert", next: "result", icon: "🍓" },
+          { label: "Full meal", value: "meal", next: "result", icon: "🍝" },
+          { label: "Just drinks / snacks", value: "snacks", next: "result", icon: "🍿" }
+        ]
+      },
+
+      result: {
+        id: "result",
+        title: "Your date night plan ✨",
+        subtitle: "A two-part plan with a little extra sparkle.",
+        choices: [
+          { label: "Plan again", value: "restart", next: "where", icon: "✅" },
+          { label: "Shuffle this plan", value: "shuffle", next: "result", icon: "🎲" },
+          { label: "Start over", value: "hardReset", next: "start", icon: "🔄" }
+        ]
+      }
+    };
+
+    const PATH = ["where","budget","mood","tone","state","food","result"];
+
+    // ----- State -----
+    let nodeId = "start";
+    let answers = {};
+    let shuffleN = 0;
+
+    // ----- Utilities -----
+    const $ = (id) => document.getElementById(id);
+
+    function hashAnswers(obj){
+      const s = JSON.stringify(obj);
+      let h = 0;
+      for (let i=0; i<s.length; i++){
+        h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      }
+      return h;
+    }
+    function pick(arr, seed){
+      const idx = ((seed % arr.length) + arr.length) % arr.length;
+      return arr[idx];
+    }
+
+    function buildPlan(answers, shuffleN){
+      const where = answers.where || "either";
+      const budget = answers.budget || "mid";
+      const mood = answers.mood || "cozy";
+      const tone = answers.tone || "intimate";
+      const state = answers.state || "relaxed";
+      const food = answers.food || "appsDessert";
+
+      const seed = (hashAnswers(answers) + shuffleN * 9973) >>> 0;
+
+      const IN_COZY = [
+        "candlelit movie + blanket fort",
+        "paint-and-sip at home",
+        "co-op video game night",
+        "slow playlist + kitchen dancing",
+        "board game night with candles"
+      ];
+      const OUT_COZY = [
+        "coffee + dessert crawl",
+        "bookstore + pick-a-book for each other",
+        "cozy cocktail lounge or wine bar",
+        "evening walk + hot chocolate",
+        "quiet neighborhood bistro"
+      ];
+
+      const IN_EXCITING = [
+        "competitive mini tournament (cards / Mario Kart / darts)",
+        "mystery taste test (snacks from one aisle)",
+        "DIY sushi/ramen night with a timer challenge",
+        "karaoke session (living room stage)",
+        "‘yes night’ with a coin flip for prompts"
+      ];
+      const OUT_EXCITING = [
+        "arcade/barcade",
+        "live comedy show",
+        "bowling with silly challenges",
+        "late-night food trucks / night market",
+        "escape room"
+      ];
+
+      const IN_WHOLESOME = [
+        "memory night (photos + stories + playlist)",
+        "build a puzzle + cozy background show",
+        "cook a new recipe together",
+        "make dessert + write little notes to each other",
+        "DIY spa setup + gratitude check-in"
+      ];
+      const OUT_WHOLESOME = [
+        "museum or gallery stroll",
+        "thrift store ‘pick an outfit’ challenge",
+        "farmers market + cook what you find",
+        "sunset viewpoint + warm drinks",
+        "mini volunteer moment then treats"
+      ];
+
+      const followUps = {
+        cozy: [
+          "pick a romantic movie or comfort show",
+          "do a gentle couples stretch session",
+          "make a ‘future travel’ board together",
+          "read to each other for 10 minutes"
+        ],
+        exciting: [
+          "reality TV + commentary session",
+          "try a silly dance tutorial",
+          "speed-cook challenge (30 minutes)",
+          "build a bracket for anything (songs/snacks/movies)"
+        ],
+        wholesome: [
+          "write tiny notes and hide them for later",
+          "make a playlist for each other",
+          "gratitude check-in (3 things each)",
+          "talk during a comfort movie: favorite scenes"
+        ]
+      };
+
+      const intimateBoost = [
+        "Do a 10-minute ‘questions’ game (memories, favorites, future plans).",
+        "Swap compliments: 3 specific things you appreciate about each other.",
+        "End with one slow song + a dance in the kitchen."
+      ];
+      const goofyBoost = [
+        "Pick a ridiculous theme (spy mission, royalty, dramatic accents).",
+        "Do a 5-minute ‘loving roast’ round (keep it kind).",
+        "Take 3 intentionally terrible selfies and rank them."
+      ];
+      const adventurousBoost = [
+        "Try one new thing: new cuisine, new place, or a new game.",
+        "Flip a coin for two tiny decisions (dessert / route / activity).",
+        "Create a mini scavenger hunt with 5 items."
+      ];
+
+      const restorative = [
+        "a massage/spa moment (masks + lotion + warm towels)",
+        "a hot bath/shower reset + cozy robes",
+        "a guided meditation + gentle stretch"
+      ];
+      const windDown = [
+        "finish with low lights + a slow song",
+        "end with a cozy recap: best moment + one wish",
+        "close with a short walk / balcony moment"
+      ];
+
+      const foodMap = {
+        appsDessert: [
+          "a nice appetizer board (cheese/fruit/crunchy + something sweet)",
+          "a shared dessert flight (brownies, ice cream, or pastry trio)",
+          "a fun drink (mocktail, wine, or ginger fizz)"
+        ],
+        meal: [
+          "a ‘special’ main (pasta, tacos, ramen, or steak-night vibes)",
+          "a simple fresh side + something warm",
+          "a tiny dessert cap (cookie, mochi, or dark chocolate)"
+        ],
+        snacks: [
+          "a snack flight (chips, candy, fruit + one wild card)",
+          "a signature drink (or two matched mocktails)",
+          "a late-night nibble (popcorn, dumplings, or fries)"
+        ]
+      };
+
+      const budgetSeasoning = {
+        ballout: [
+          "Upgrade move: reserve something or add a luxe touch (better dessert/drinks).",
+          "Make it feel ‘planned’: a timed surprise + a nicer finish."
+        ],
+        economical: [
+          "Hack: pick ONE ‘wow’ item and keep the rest simple.",
+          "DIY > pricey: elevate with lighting + playlist + presentation."
+        ],
+        mid: [
+          "Mix: one paid activity + one low-key moment.",
+          "Keep it smooth: fewer stops, better vibes."
+        ]
+      };
+
+      const isIn = (where === "in") ? true : (where === "out") ? false : (seed % 2 === 0);
+
+      const poolA =
+        (mood === "cozy") ? (isIn ? IN_COZY : OUT_COZY) :
+        (mood === "exciting") ? (isIn ? IN_EXCITING : OUT_EXCITING) :
+        (isIn ? IN_WHOLESOME : OUT_WHOLESOME);
+
+      const boost =
+        (tone === "intimate") ? intimateBoost :
+        (tone === "goofy") ? goofyBoost :
+        adventurousBoost;
+
+      const part1 = pick(poolA, seed);
+      const part2 =
+        (state === "stressed")
+          ? pick(restorative, seed + 23)
+          : pick(followUps[mood], seed + 11);
+
+      const title =
+        (isIn ? "Stay-In" : "Go-Out") + " • " +
+        mood[0].toUpperCase()+mood.slice(1) + " • " +
+        tone[0].toUpperCase()+tone.slice(1);
+
+      const pairing =
+        (state === "stressed") ? "Built to decompress first, then connect." :
+        (state === "restless") ? "Keeps energy moving — ends calm and close." :
+        "Simple, sweet, and leaves room for spontaneity.";
+
+      return {
+        title,
+        pairing,
+        steps: [
+          { k: "Part 1", v: part1 },
+          { k: "Part 2", v: part2 },
+          { k: "Food", v: pick(foodMap[food], seed + 3) },
+          { k: "Bonus", v: pick(boost, seed + 7) },
+          { k: "Pro tip", v: pick(budgetSeasoning[budget], seed + 5) },
+          { k: "Wind-down", v: pick(windDown, seed + 31) }
+        ]
+      };
+    }
+
+    // ----- Render -----
+    function render(){
+      const node = QUESTIONS[nodeId];
+      $("qTitle").textContent = node.title;
+      $("qSubtitle").textContent = node.subtitle;
+
+      // Progress
+      const idx = PATH.indexOf(nodeId);
+      const current = (nodeId === "start") ? -1 : idx; // -1 = not started
+      $("dots").innerHTML = "";
+      for (let i=0; i<PATH.length; i++){
+        const d = document.createElement("div");
+        d.className = "dot" + (i <= current ? " on" : "");
+        $("dots").appendChild(d);
+      }
+      $("stepText").textContent =
+        (nodeId === "start") ? "Ready when you are" :
+        `Step ${Math.max(1, idx+1)} of ${PATH.length}`;
+
+      const panel = $("panelInner");
+      panel.classList.remove("fade"); // reset animation
+      void panel.offsetWidth;         // reflow
+      panel.classList.add("fade");
+
+      if (nodeId !== "result"){
+        panel.innerHTML = `
+          <div class="grid" id="choices"></div>
+        `;
+        const choicesWrap = document.getElementById("choices");
+        node.choices.forEach(c => {
+          const btn = document.createElement("button");
+          btn.className = "choice";
+          btn.innerHTML = `
+            <div class="icon">${c.icon || "✅"}</div>
+            <div>
+              <div class="label">${c.label}</div>
+              <div class="hint">Tap to choose</div>
+            </div>
+          `;
+          btn.addEventListener("click", () => choose(c));
+          choicesWrap.appendChild(btn);
+        });
+        return;
+      }
+
+      // Result screen
+      const plan = buildPlan(answers, shuffleN);
+      panel.innerHTML = `
+        <div class="resultCard">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+              <div style="font-size:12px; font-weight:700; color:#64748b;">Your plan</div>
+              <h2 class="resultTitle">${escapeHtml(plan.title)}</h2>
+            </div>
+            <div class="icon" aria-hidden="true">💘</div>
+          </div>
+          <p class="pairing">${escapeHtml(plan.pairing)}</p>
+        </div>
+
+        <div class="steps">
+          ${plan.steps.map(s => `
+            <div class="step">
+              <div class="k">${escapeHtml(s.k)}</div>
+              <div class="v">${escapeHtml(s.v)}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="grid" style="margin-top:12px;">
+          ${node.choices.map(c => `
+            <button class="choice" data-action="${c.value}">
+              <div class="icon">${c.icon}</div>
+              <div>
+                <div class="label">${escapeHtml(c.label)}</div>
+                <div class="hint">${c.value === "shuffle" ? "New combo, same vibes" : "Tap to continue"}</div>
+              </div>
+            </button>
+          `).join("")}
+        </div>
+
+        <div class="tip">Tip: Tap <b style="color:#0f172a;">Shuffle</b> a few times if you want more variety.</div>
+      `;
+
+      panel.querySelectorAll("button[data-action]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const val = btn.getAttribute("data-action");
+          if (val === "shuffle") { shuffleN++; render(); return; }
+          if (val === "restart") { nodeId = "where"; shuffleN = 0; render(); return; }
+          if (val === "hardReset") { resetAll(); return; }
+        });
+      });
+    }
+
+    function choose(choice){
+      // handle start separately
+      if (nodeId !== "start" && nodeId !== "result"){
+        answers[nodeId] = choice.value;
+      }
+      nodeId = choice.next;
+      render();
+    }
+
+    function resetAll(){
+      nodeId = "start";
+      answers = {};
+      shuffleN = 0;
+      render();
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // Events
+    $("resetBtn").addEventListener("click", resetAll);
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
